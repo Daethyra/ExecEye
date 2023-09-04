@@ -6,18 +6,10 @@ from cachetools import LRUCache
 import os
 from dotenv import load_dotenv
 
-# Initialize logging
 logging.basicConfig(level=logging.DEBUG)
-
-# Initialize environment variables
 load_dotenv()
 
-
-# Database manager class
 class DatabaseManager:
-    """
-    Handles database operations.
-    """
     def __init__(self):
         self.init_db()
 
@@ -28,7 +20,9 @@ class DatabaseManager:
             self.cursor.execute("""
                 CREATE TABLE IF NOT EXISTS results (
                     query TEXT,
-                    result TEXT
+                    title TEXT,
+                    link TEXT,
+                    snippet TEXT
                 )
             """)
             self.conn.commit()
@@ -36,34 +30,33 @@ class DatabaseManager:
         except Exception as e:
             logging.error(f"Database initialization failed: {e}")
 
-    def save_to_db(self, query: str, result: str):
+    def save_to_db(self, query: str, results: List[Dict]):
         try:
-            self.cursor.execute("INSERT INTO results (query, result) VALUES (?, ?)", (query, result))
-            self.conn.commit()
-            logging.debug("Saved result to database.")
+            for result in results:
+                title = result.get('title', '')
+                link = result.get('link', '')
+                snippet = result.get('snippet', '')
+                self.cursor.execute(
+                    "INSERT INTO results (query, title, link, snippet) VALUES (?, ?, ?, ?)",
+                    (query, title, link, snippet))
+                self.conn.commit()
+                logging.debug("Saved result to database.")
         except Exception as e:
             logging.error(f"Failed to save result to database: {e}")
 
-
 class SerpApiSearch:
-    """
-    Handles all SERP functionality.
-    """
-    def __init__(self, db_manager: DatabaseManager, cache: LRUCache):
-        self.api_key = os.getenv("SERP_API_KEY")  # Read API key from .env
+    def __init__(self, api_key: str, db_manager: DatabaseManager, cache: LRUCache):
+        self.api_key = api_key
         self.db_manager = db_manager
         self.cache = cache
 
     def search_leadership(self, company_name: str) -> Union[List[Dict], None]:
         try:
-            # Create a cache key based on the company name and search terms
             cache_key = f"{company_name}_leadership"
-
             if cache_key in self.cache:
                 logging.debug("Cache hit.")
                 return self.cache[cache_key]
 
-            # Broaden the search to include executives and board of directors
             params = {
                 "q": f"{company_name} executives OR {company_name} board of directors",
                 "api_key": self.api_key
@@ -71,8 +64,9 @@ class SerpApiSearch:
             search = GoogleSearch(params)
             results = search.get_dict().get("organic_results", None)
 
-            self.cache[cache_key] = results
-            self.db_manager.save_to_db(cache_key, str(results))
+            if results:
+                self.cache[cache_key] = results
+                self.db_manager.save_to_db(cache_key, str(results))
 
             logging.debug("Search completed.")
             return results
@@ -80,37 +74,24 @@ class SerpApiSearch:
             logging.error(f"Search failed: {e}")
             return None
 
-
-# Command Line Interface class
 class UserCLI:
-    """
-    Handles the Command Line Interface for the user.
-    """
-
     def __init__(self, searcher: SerpApiSearch):
         self.searcher = searcher
 
     def run(self):
-        while True:
-            company_name = input("Enter the company name to search for leadership: ")
-            results = self.searcher.search_leadership(company_name)
-            if results:
-                print(f"Executives found for {company_name}: {results}")
-            else:
-                print(f"No executives found for {company_name}.")
-
-
-# Unit Tests
-def test_search_leadership():
-    db_manager = DatabaseManager()
-    cache = LRUCache(maxsize=100)
-    serp_api = SerpApiSearch(db_manager, cache)
-    result = serp_api.search_leadership("Google")
-    assert result is not None, "Test Failed: No leadership found."
-
-if __name__ == "__main__":
-    db_manager = DatabaseManager()
-    cache = LRUCache(maxsize=100)
-    serp_api = SerpApiSearch(db_manager, cache)
-    cli = UserCLI(serp_api)
-    cli.run()
+        try:
+            while True:
+                company_name = input("Enter the company name to search for leadership: ")
+                results = self.searcher.search_leadership(company_name)
+                if results:
+                    print(f"\nExecutives found for {company_name}:")
+                for i, result in enumerate(results):
+                    title = result.get('title', 'N/A')
+                    link = result.get('link', 'N/A')
+                    snippet = result.get('snippet', 'N/A')
+                    print(f"  - {title}\n    Link: {link}\n    Snippet: {snippet}\n")
+                else:
+                    print(f"No executives found for {company_name}.")
+        except KeyboardInterrupt:
+            print("\nExiting program. Goodbye!")
+            exit(0)
