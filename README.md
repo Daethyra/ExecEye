@@ -3,12 +3,12 @@
 ## Overview
 
 This project aims to provide a command-line interface for searching company leadership information using the SerpAPI. It also includes caching and database storage functionalities to improve performance and persist results.
+The database schema has been optimized to store only relevant information such as the executive's title, link to the source, and a snippet. Additionally, the CLI output has been formatted for better readability.
 
 ## Dependencies
 
 * Python 3.x
-* `serpapi`
-* `sqlite3`
+* `google-search-results` (SerpAPI)
 * `cachetools`
 * `python-dotenv`
 
@@ -16,7 +16,7 @@ This project aims to provide a command-line interface for searching company lead
 
 1. Clone the repository.
 2. Install the required packages.
-3. Create a copy of the `.env.template` file and add your SerpAPI key as `SERP_API_KEY=your_key_here`.
+3. Rename the `.env.template` to `.env`, then add your SerpAPI key:value for `SERP_API_KEY=`.
 
 ## Modules
 
