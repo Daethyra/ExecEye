@@ -1,0 +1,20 @@
+[project]
+name = "ExecEye"
+version = "0.1.0"
+description = "A Harvest of Corporate Leadership's Names"
+authors = [
+    {name = "Daethyra", email = "dev-daethyra@protonmail.com"},
+]
+dependencies = [
+    "google-search-results",
+    "python-dotenv",
+    "cachetools",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "GNU AGPL"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+

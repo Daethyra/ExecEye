@@ -1,3 +1,7 @@
+# PDM - Critical Ignore - https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+*.pdm-python*
+# "You must commit the pyproject.toml file. You should commit the pdm.lock and pdm.toml file. ***Do not commit*** the .pdm-python file."
+
 *results.db
 
 # Byte-compiled / optimized / DLL files
