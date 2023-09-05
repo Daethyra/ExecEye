@@ -1,15 +1,16 @@
 """ Start the application. """
-from src.serp_backbone import DatabaseManager, SerpApiSearch, UserCLI
+from src.serp_backbone import AsyncDatabaseManager, SerpApiSearch, UserCLI
 from cachetools import LRUCache
 from dotenv import load_dotenv
 import os
 
+# Initialize the .env file.
 load_dotenv()
 
 def main():
     try:
         # Initialize the database manager, cache, and SerpApiSearch object.
-        db_manager = DatabaseManager()
+        db_manager = AsyncDatabaseManager()
         cache_size = int(os.getenv("CACHE_SIZE", 100))
         cache = LRUCache(maxsize=cache_size)
 

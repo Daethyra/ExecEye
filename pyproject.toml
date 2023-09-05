@@ -9,6 +9,7 @@ dependencies = [
     "google-search-results",
     "python-dotenv",
     "cachetools",
+    "aiosqlite",
 ]
 requires-python = ">=3.10"
 readme = "README.md"

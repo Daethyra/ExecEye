@@ -5,6 +5,15 @@
 This project aims to provide a command-line interface for searching company leadership information using the SerpAPI. It also includes caching and database storage functionalities to improve performance and persist results.
 The database schema has been optimized to store only relevant information such as the executive's title, link to the source, and a snippet. Additionally, the CLI output has been formatted for better readability.
 
+## Updates
+
+### September 4, 2023
+
+- Refactored the code for production-grade standards, focusing on modularity, and maintainability.
+- Introduced an async context manager for efficient database connection handling.
+- Added input validation and sanitization in the CLI to improve security.
+- Enhanced comments and added first-line docstrings for better code readability.
+
 ## Dependencies
 
 * Python 3.x
